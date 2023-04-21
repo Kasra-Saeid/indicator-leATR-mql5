@@ -14,9 +14,9 @@
 int maxPeriod;
 
 input ENUM_MA_METHOD emaMethod = MODE_EMA;   // Ma Method
-input int emaPeriod = 18;              // Ema Period
-input int atrPeriod = 18;              // Atr Period
-input double multiplier = 1.7;          // Multiplier
+input int emaPeriod = 18;                    // Ema Period
+input int atrPeriod = 18;                    // Atr Period
+input double multiplier = 1.7;               // Multiplier
 
 double indicatorBuffer[];
 double eATR[];
@@ -64,17 +64,19 @@ int OnCalculate(const int rates_total, // rates_total is the number of total ava
    if (prev_calculated > rates_total || prev_calculated <= 0) {
       copyBars = rates_total;
    } else {
-      copyBars = rates_total - prev_calculated + 1;
+      copyBars = rates_total - prev_calculated;
    }
    
    
    if (IsStopped()) return 0;
-    
-   CopyBuffer(emaHandle, 0, 0, copyBars, eATR);
 
-    for(int i = prev_calculated; i < rates_total; i++) {
-      indicatorBuffer[i] = low[i] - multiplier * eATR[ArraySize(eATR) - 1];
-    }
+
+   CopyBuffer(emaHandle, 0, 0, rates_total, eATR); 
+     
+   for(int i = copyBars - 1; i >= 0; i--) {
+      indicatorBuffer[ArraySize(indicatorBuffer) - 1 - i] = low[ArraySize(low) - 1 - i] - (multiplier * eATR[ArraySize(eATR) - 1 - i]);
+   }
+
 
 
    return(rates_total);
